@@ -182,6 +182,7 @@ class PredictG(object):
             return json.load(f)
         
     # 아래의 값들은 reduced mass를 위한 값들이다. 근데 self.atom_names는 기존에 없던 property인데.. 어캐 생성했지 
+    # 메소드 위에 붙어있는 '@property' 가 getter로써 역할을 한다. 다른 값에 대해서 특정 값을 전달하는 역할로, 파이썬 내부의 캡슐화에 의한거라나 뭐라나..
         
     @property
     def m(self):
@@ -294,25 +295,27 @@ class PredictG(object):
             return 0.
         else:
             return ((self.H + self.Gd_sisso(T, vol_per_atom))*96.485*self.num_atoms - 96.485*self.summed_Gi(T)) / self.num_atoms / 96.485
+        # 여기서 num_atoms은 H2O의 경우 3이고, 96.485는 무엇을 뜻하는걸까..  1eV = 96.485 kJ/mol을 의미한다. 
 
 def get_dGAl2O3_from_structure():
     """
     demonstration of how to get dG from optimized structure
     """
     print('------------------------------')    
-    initial_formula = 'Al2O3'
+    # 지금 intial formula
+    initial_formula = 'Al2O3' # 일단 initial formula에 대해서 적어주고 
     print('approximating dGf for %s...' % initial_formula)    
-    path_to_structure = 'POSCAR.mp-1143_Al2O3'
+    path_to_structure = 'POSCAR.mp-1143_Al2O3' # path_to_structure에 대한 경로를 넣어주고 
     path_to_masses = 'masses.json'
-    path_to_chempots = 'Gels.json'
-    H = -3.442 # eV/atom
+    path_to_chempots = 'Gels.json' # 요거 두 작업도 필수적으로 들어간다. 
+    H = -3.442 # eV/atom    .  이 경우에는 Al의 formation energy
     obj = PredictG(initial_formula,
                    H,
                    path_to_structure,
                    path_to_masses,
                    path_to_chempots)
     for T in [300, 600, 900, 1200, 1500, 1800]:
-        print('T = %i K; dG = %.3f eV/atom' % (T, obj.dG(T=T, vol_per_atom=False)))
+        print('T = %i K; dG = %.3f eV/atom' % (T, obj.dG(T=T, vol_per_atom=False))) # T에대한 5가지 조건으로, dG라는 함수를 돌리는거임 
     print('------------------------------\n')
     return obj
 
@@ -338,6 +341,7 @@ def get_dMgAl2O4_without_structure():
     print('------------------------------\n')
     return obj
 
+# obj1과2를 통해서, get뭐시기 함수들을 호출한다. 그리고 결과를 obj1, obj2에 담아준다.
 def main():
     """
     run demonstrations
@@ -348,6 +352,6 @@ def main():
     obj2 = get_dMgAl2O4_without_structure()
     return obj1, obj2
 
-# main을 통해서 obj1, obj2의 값을 얻을 수 있도록 한다. 
+# main을 통해서 obj1, obj2의 값을 얻을 수 있도록 한다. 이거는 이제 이 파일이 메소드가 아닌 형태로 쓰인 경우에 대해서, main()을 실행해달라는 뜻임 
 if __name__ == '__main__':
     obj1, obj2 = main()
